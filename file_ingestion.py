@@ -3,7 +3,7 @@ import matplotlib
 import numpy as np
 matplotlib.use('TkAgg')
 
-
+#  contains functions to support CB1 and CB2 file format ingestion
 swTimelist = []
 glTimeList = []
 
@@ -54,45 +54,23 @@ average_sw = 0
 average_gl = 0
 
 
-def sum_numbers(n1, n2):
-    return n1 + n2
+valid_file_types = []
 
-
-def read_f1_filetype(name):
-    # reads a file of type F1 and writes the contents to the arrays swTimeList and glTimeList
-    f = open(name, "r")
-    current_line = f.readline()  # type: str
-    if current_line == "F1\n":
-        line = f.readline()
-        numfirst = line
-        # numfirst * 2 = total entries. @numfirst, we start reading as second type.
-        for n in range(int(numfirst)):
-            fulltimelist.append(n + 1)
-        for x in range(int(numfirst)):
-            currentstring = f.readline()
-            currentfloat = float(currentstring[0:-2])
-            swTimelist.append(currentfloat)
-
-        for x in range(int(numfirst), (int(numfirst) + int(numfirst))):
-            currentstring = f.readline()
-            currentfloat = float(currentstring[0:-2])
-            glTimeList.append(currentfloat)
-    else:
-        print("Incorrect file format!")
-
-    f.close()
-
-
-def more_time(duration):
-    for n in range(int(duration)):
-        fulltimelist.append(n + 1)
-
-
-def read_cb1_filetype(name):
+def read_file( name ):
     f = open(name, "r")
     current_line = f.readline()  # type: str
     number_samples = 0
-    if current_line == "CB1\n":  # if we're working with the correct file type:
+    for s in valid_file_types:
+        if current_line == s:  # the current file type is valid and can be read by this function:
+            filetype = s
+            if filetype == "CB1":
+                read_cb1( name, f )
+        else:
+            print("Invalid filetype.")
+
+
+
+def read_cb1(name, f):
 
         line = f.readline()
         numfirst = int(line)  # the number of discrete timings per model-type.
@@ -201,48 +179,6 @@ def read_cb1_filetype(name):
         print("Not the correct file type!")
 
 
-
-
-
-def convert_to_fps(array):
-    for i in range(len(array)):
-        if array[i] != 0:
-            array[i] = 1 / array[i]
-
-
-"""
-read_f1_filetype("teapot.txt")
-convert_to_fps(swTimelist)  # Convert the two arrays over to frames per second
-convert_to_fps(glTimeList)
-plt.plot(fulltimelist, glTimeList, label="GL")
-plt.plot(fulltimelist, swTimelist, label="Software")
-"""
-
-read_cb1_filetype("teapot.txt")
-
-convert_to_fps(mesh_gl_timelist)
-convert_to_fps(mesh_sw_timelist)
-convert_to_fps(cylinder_gl_timelist)
-convert_to_fps(cylinder_sw_timelist)
-convert_to_fps(cone_gl_timelist)
-convert_to_fps(cone_sw_timelist)
-convert_to_fps(buddha_sw_timelist)
-convert_to_fps(buddha_gl_timelist)
-
-
-plt.plot(fulltimelist, mesh_gl_timelist, label="Mesh GL")
-plt.plot(fulltimelist, mesh_sw_timelist, label="Mesh SW")
-plt.plot(fulltimelist, cylinder_gl_timelist, label="Cylinder GL")
-plt.plot(fulltimelist, cylinder_sw_timelist, label="Cylinder SW")
-plt.plot(fulltimelist, cone_gl_timelist, label="Cone GL")
-plt.plot(fulltimelist, cone_sw_timelist, label="Cone SW")
-plt.plot(fulltimelist, buddha_gl_timelist, label="Buddha GL")
-plt.plot(fulltimelist, buddha_sw_timelist, label=" Buddha SW")
-
-
-plt.xlabel("Render")
-plt.ylabel("Frames per second")
-plt.title("(higher is better)")
-plt.suptitle("Teapot: All options")
-plt.legend()
-plt.show()
+def more_time(duration):
+    for n in range(int(duration)):
+        fulltimelist.append(n + 1)
