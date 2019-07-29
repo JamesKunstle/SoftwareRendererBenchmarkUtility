@@ -184,19 +184,26 @@ def more_time(duration):
         fulltimelist.append(n + 1)
 
 
-def read_f1_filetype( name, f):
+def read_f1_filetype(name, f):
     line = f.readline()
     numfirst = line
     # numfirst * 2 = total entries. @numfirst, we start reading as second type.
     for n in range(int(numfirst)):
         fulltimelist.append(n + 1)
-    for x in range(int(numfirst)):
+    for x in range(10, int(numfirst) + 10):
         currentstring = f.readline()
+        if float(currentstring[0:-2]) <= 0.00000:
+            break
+        print(1)
         currentfloat = float(currentstring[0:-2])
         swTimelist.append(currentfloat)
 
-    for x in range(int(numfirst), (int(numfirst) + int(numfirst))):
+    for x in range(int(numfirst) + 10, (2 * int(numfirst)) + 11):
         currentstring = f.readline()
+        if float(currentstring[0:-2]) == 0.00000:
+            print("0.00000: ", x, " == ", currentstring)
+            continue
+        print(2)
         currentfloat = float(currentstring[0:-2])
         glTimeList.append(currentfloat)
 
@@ -209,10 +216,16 @@ def convert_to_fps(array):
             array[i] = 1 / array[i]
 
 
-read_file("teapot.txt")
+read_file("SWHWtimer_200.txt")
+print("Length of the timelist for gl is: ", len(glTimeList))
+print(len(swTimelist))
 convert_to_fps(swTimelist)  # Convert the two arrays over to frames per second
 convert_to_fps(glTimeList)
 plt.plot(fulltimelist, glTimeList, label="GL")
 plt.plot(fulltimelist, swTimelist, label="Software")
+plt.xlabel("Render")
+plt.ylabel("Frames per second")
+plt.title("(higher is better)")
+plt.suptitle("Sphere: Rasterized and Per-pixel lit")
 plt.legend()
 plt.show()
